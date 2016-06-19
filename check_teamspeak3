@@ -12,6 +12,7 @@
 # -p            (Optional) A password
 # -w            warning usercount percent
 # -c            Critical usercount percent
+# -s            Server instance id
 # -V            version
 # -v            verbose
 
@@ -22,7 +23,7 @@ use Time::HiRes qw(gettimeofday);
 
 use lib "/usr/lib/nagios/plugins/" ;
 use utils qw($TIMEOUT %ERRORS &print_revision &support);
-use vars qw($PROGNAME $opt_v $opt_V $opt_h $opt_H $opt_w $opt_c $opt_t $opt_l $opt_u $opt_p @servers $duration %EscapePattern);
+use vars qw($PROGNAME $opt_v $opt_V $opt_h $opt_H $opt_w $opt_c $opt_t $opt_l $opt_u $opt_p $opt_sid @servers $duration %EscapePattern);
 
 $PROGNAME="check_teamspeak3";
 
@@ -38,6 +39,7 @@ GetOptions
 	 "w=f" => \$opt_w, "warning=f"     => \$opt_w,
 	 "c=f" => \$opt_c, "critical=f"    => \$opt_c,
 	 "u=s" => \$opt_u, "user=s"    	   => \$opt_u,
+	 "s=i" => \$opt_sid, "sid=i"       => \$opt_sid,
 	 "p=s" => \$opt_p, "password=s"    => \$opt_p,
 	 "H=s" => \$opt_H, "hostname=s"    => \$opt_H,
 	 "t=f" => \$opt_t, "telnetport=f"  => \$opt_t);
@@ -104,6 +106,18 @@ $SIG{'ALRM'} = sub {
 };
 alarm($TIMEOUT);
 
+sub login {
+	my ($sock) = @_;
+
+	if ($opt_u) {
+		print $sock "login ".EscapeLogin($opt_u)." ".EscapeLogin($opt_p)."\n";
+	}
+
+	if ($opt_sid) {
+		print $sock "use sid=$opt_sid\n";
+	}
+}
+
 sub list_servers {
 	my $starttime = gettimeofday;
 	my $sock = IO::Socket::INET->new(qq($opt_H:$opt_t));
@@ -111,9 +125,9 @@ sub list_servers {
 		print ("ERROR: Unable to open Socket on $opt_H:$opt_t\n");
 		exit $ERRORS{"UNKNOWN"};
 	}
-	if ($opt_u) {
-		print $sock "login ".EscapeLogin($opt_u)." ".EscapeLogin($opt_p)."\n";
-	}
+
+	login($sock);
+
 	print $sock qq(serverlist\nquit\n);
 	while(<$sock>) {
 		chomp;
@@ -155,9 +169,8 @@ sub get_data {
 		exit $ERRORS{"UNKNOWN"};
 	}
 
-	if ($opt_u) {
-		print $sock "login ".EscapeLogin($opt_u)." ".EscapeLogin($opt_p)."\n";
-	}
+	login($sock);
+
 	print $sock qq(hostinfo\nquit\n);
 	while(<$sock>){
 		foreach (split(/\|/)) {
@@ -201,7 +214,7 @@ sub get_data {
 }
 
 sub print_usage () {
-	print "Usage: $PROGNAME [-V] -H <host> [-t <telnet port>] [-u <user> -p <password>] [-w <warn>] [-c <crit>] [-l]\n";
+	print "Usage: $PROGNAME [-V] -H <host> [-t <telnet port>] [-s <server instance>] [-u <user> -p <password>] [-w <warn>] [-c <crit>] [-l]\n";
 }
 
 sub print_help () {
@@ -226,6 +239,8 @@ Checks the Teamspeak on host H, Server(udp port) s, where
    Port number of telnet port (default: 10011)
  -u, --user=STRING
    A user name
+ -s, --sid=INTEGER
+   Server instance ID
  -p, --password=STRING
    The users password
  -w, --warning=FLOAT
