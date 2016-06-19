@@ -106,6 +106,15 @@ $SIG{'ALRM'} = sub {
 };
 alarm($TIMEOUT);
 
+sub connect_serverquery {
+	my $sock = IO::Socket::INET->new(qq($opt_H:$opt_t));
+	unless ($sock) {
+		print ("ERROR: Unable to open Socket on $opt_H:$opt_t\n");
+		exit $ERRORS{"UNKNOWN"};
+	}
+	return $sock;
+}
+
 sub login {
 	my ($sock) = @_;
 
@@ -120,12 +129,8 @@ sub login {
 
 sub list_servers {
 	my $starttime = gettimeofday;
-	my $sock = IO::Socket::INET->new(qq($opt_H:$opt_t));
-	unless ($sock) {
-		print ("ERROR: Unable to open Socket on $opt_H:$opt_t\n");
-		exit $ERRORS{"UNKNOWN"};
-	}
 
+	my $sock = connect_serverquery();
 	login($sock);
 
 	print $sock qq(serverlist\nquit\n);
@@ -163,12 +168,8 @@ sub get_data {
 	my $bytesup = 0;
 	my $bytesdown = 0;
 	my $uptime = 0;
-	my $sock = IO::Socket::INET->new(qq($opt_H:$opt_t));
-	unless ($sock) {
-		print ("ERROR: Unable to open Socket on $opt_H:$opt_t\n");
-		exit $ERRORS{"UNKNOWN"};
-	}
 
+	my $sock = connect_serverquery();
 	login($sock);
 
 	print $sock qq(hostinfo\nquit\n);
