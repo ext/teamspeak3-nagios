@@ -110,7 +110,7 @@ sub connect_serverquery {
 	my $sock = IO::Socket::INET->new(qq($opt_H:$opt_t));
 	unless ($sock) {
 		print ("ERROR: Unable to open Socket on $opt_H:$opt_t\n");
-		exit $ERRORS{"UNKNOWN"};
+		exit $ERRORS{"CRITICAL"};
 	}
 	return $sock;
 }
