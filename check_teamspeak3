@@ -25,7 +25,8 @@ use lib "/usr/lib/nagios/plugins/" ;
 use utils qw($TIMEOUT %ERRORS &print_revision &support);
 use vars qw($PROGNAME $opt_v $opt_V $opt_h $opt_H $opt_w $opt_c $opt_t $opt_l $opt_u $opt_p $opt_sid @servers $duration %EscapePattern);
 
-$PROGNAME="check_teamspeak3";
+my $PROGNAME="check_teamspeak3";
+my $VERSION="2.0";
 
 my $DEFAULT_USERCNT_WARN        = 70;
 my $DEFAULT_USERCNT_CRIT        = 90;
@@ -45,7 +46,7 @@ GetOptions
 	 "t=f" => \$opt_t, "telnetport=f"  => \$opt_t);
 
 if ($opt_V) {
-	print_revision($PROGNAME,'$Revision: 0.1.0 $ ');
+	print_revision($PROGNAME, $VERSION);
 	exit $ERRORS{'OK'};
 }
 
@@ -219,7 +220,7 @@ sub print_usage () {
 }
 
 sub print_help () {
-	print_revision($PROGNAME,'$Revision: 0.1.1 $');
+	print_revision($PROGNAME, $VERSION);
 	print "Elbandi (elso.andras\@gmail.com) based on nagios check_teamspeak from Torben Hansemann 2006 (th\@thux.de)\n";
 	print "nd (schick_was_an\@hotmail.com) based on nagios check_teamspeak3 from Elbandi\n";
 	print "\n";
