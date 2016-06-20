@@ -1,8 +1,7 @@
 #!/usr/bin/perl
 
-# Nagios Check Script for teamspeak 3 server
-# written by Torben Hansemann 2006
-# Updated with login by Andreas Zimmermann 2010 schick_was_an@hotmail.com
+# Nagios Check Script for Teamspeak 3 server using serverquery
+# interface.
 
 #Parameter:
 # -H            host
@@ -221,13 +220,9 @@ sub print_usage () {
 
 sub print_help () {
 	print_revision($PROGNAME, $VERSION);
-	print "Elbandi (elso.andras\@gmail.com) based on nagios check_teamspeak from Torben Hansemann 2006 (th\@thux.de)\n";
-	print "nd (schick_was_an\@hotmail.com) based on nagios check_teamspeak3 from Elbandi\n";
-	print "\n";
 	print_usage();
 	print "
-
-Checks the Teamspeak on host H, Server(udp port) s, where
+Checks the Teamspeak 3 server on host H:t where
 
  -V, --version
    Print version information
